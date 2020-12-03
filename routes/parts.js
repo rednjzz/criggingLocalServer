@@ -1,42 +1,75 @@
 const express = require('express');
 const router = express.Router();
+const fs = require('fs');
 import partsArray from "../libs/libs/partsArray";
 import startApp from "../libs/libs/riggingData";
 
 router.get('/', (req,res,next) => {
-
   const workValue = { // input value  
     safetyFactor : 85,
     craneLocation : 'back',  // front, back, side
 
-    workWeight : 20,
-    workBuilding : {  // 크레인이 건물에 붙는 면을 가로.
-      vertical : 18,
-      horizontal : 0,
-      height : 12,
+    workWeight : 25,
+    workBuilding: {  // 크레인이 건물에 붙는 면을 가로.
+      vertical : 5,
+      horizontal : 5,
+      height : 110,
     },
     block : {
-      vertical1: 4,
-      horizontal1: 5,
-      height1: 3,
-      vertical2: 3,
+      vertical1: 0,
+      horizontal1: 0,
+      height1: 0,
+      vertical2: 0,
       height2: 0
     },
-  };
+  }
 
-  const craneDataCal = startApp(workValue);
-  const craneData = craneDataCal[craneDataCal.length-45];
-  console.log(craneDataCal.length);
-  const {partsData, partsList, connectionData} = partsArray(craneData);
-  // const {partsData, partsList, connectionData}= partsArray(craneData);  
+  let craneDataCal;
+  let craneData;
+  let craneData2;
+  let partsData,partsList,connectionData;
+
+  try{
+    craneDataCal = startApp(workValue);
+    // craneData = craneDataCal[craneDataCal.length-20];
+    craneData = craneDataCal[2];
+    console.log(craneData);
+    craneData2 = craneData; 
+    const _ = partsArray(craneData);
+    
+    // console.log("크레인전체데이터",_);
+    partsData = _.partsData;
+    partsList = _.partsList;
+    connectionData = _.connectionData;
+  } catch(e) {
+    console.error(e);
+  }
+
+  // console.log(craneDataCal.length);
   
-  console.log(craneData);
-  console.log("~~~~~~~~~~~~~~~`");
-  console.log(partsData);
-  console.log("~~~~~~~~~~~~~~~`");
-  console.log(partsList);
-  console.log("~~~~~~~~~~~~~~~`");
-  console.log(connectionData);
+  
+  fs.appendFileSync("./log.txt", JSON.stringify(workValue, null, 2))
+  craneDataCal.forEach((craneData, index) => {
+    fs.appendFileSync("./log.txt", '[' +index + ']' + craneData.craneName + ' ' + craneData.craneCode + ' ' + craneData.craneData.mainBoom + ' ' + craneData.craneData.flyFixLuffing + '\n')
+  });
+
+  // console.log(workValue);  
+  craneDataCal.forEach((craneData, index) => {
+    console.log(`[${index}]`,craneData.craneName, craneData.craneCode, craneData.craneData.mainBoom, craneData.craneData.flyFixLuffing)
+  })
+  try{
+      //  console.log(craneData);
+    // console.log("~~~~~~~~~~~~~~~`");
+    // console.log(partsData);
+    // console.log("~~~~~~~~~~~~~~~`");
+    // console.log(partsList);
+    // console.log("~~~~~~~~~~~~~~~`");
+    // console.log(connectionData);
+  } catch (e) {
+    console.log(e);
+  }
+  
+
   res.send({
     "craneData": craneData, 
     "partsData": partsData,
@@ -44,14 +77,5 @@ router.get('/', (req,res,next) => {
     "wireData": connectionData,
   });
 });
-
-router.post('/', (req,res,next) => {
-  const name = req.body.name;
-  const mode = req.body.mode;
-  console.log(name,mode);
-  res.send(req.body);
-  // res.end();
-  
-}); 
 
 module.exports = router;

@@ -17,13 +17,14 @@ const partsArray = (craneData) => {
       case "byPartsData":
         dataIndex = i;
         break;
-      case "connectionData":
+      case "byPartsConnectionData":
         connectionIndex = i;
         break;
     }
   }
 
   const partsNameArray = getPartsNameDataArray(partsDataTable[analysisIndex], craneData);
+
   return {
     partsList: partsNameArray,
     partsData: getPartsNameDataArray(partsDataTable[dataIndex], craneData, partsNameArray),
